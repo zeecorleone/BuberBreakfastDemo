@@ -1,4 +1,4 @@
-using BuberBreakfast.Services;
+using BuberBreakfast.Services.BreakfastService;
 
 var builder = WebApplication.CreateBuilder(args);
 { 
@@ -11,8 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 var app = builder.Build();
-
-
-app.UseHttpsRedirection();
-app.MapControllers();
-app.Run();
+{
+    app.UseExceptionHandler("/error");
+    app.UseHttpsRedirection();
+    app.MapControllers();
+    app.Run();
+}
