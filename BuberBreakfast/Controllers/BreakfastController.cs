@@ -22,11 +22,12 @@ public class BreakfastController : ApiControllerBase
     [HttpPost]
     public IActionResult CreateBreakfast(CreateBreakfastRequest request)
     {
-        var breakfast = new Breakfast(
-            Guid.NewGuid(), request.Name, request.Description,
-            request.StartDateTime, request.EndDateTime, DateTime.UtcNow,
-            request.Savory, request.Sweet);
+        ErrorOr<Breakfast> requestToBreakfastResult = Breakfast.From(request);
 
+        if (requestToBreakfastResult.IsError)
+            return Problem(requestToBreakfastResult.Errors);
+
+        var breakfast = requestToBreakfastResult.Value;
         ErrorOr<Created> createBreakfastResult = _breakfastService.CreateBreakfast(breakfast);
 
         return createBreakfastResult.Match(
@@ -63,10 +64,12 @@ public class BreakfastController : ApiControllerBase
     [HttpPut("{id:guid}")]
     public IActionResult UpsertBreakfast(Guid id, UpsertBreakfastRequest request)
     {
-        var breakfast = new Breakfast(
-            id, request.Name, request.Description, request.StartDateTime, request.EndDateTime, DateTime.UtcNow,
-            request.Savory, request.Sweet);
+        ErrorOr<Breakfast> requestToBreakfastResult = Breakfast.From(id, request);
 
+        if(requestToBreakfastResult.IsError)
+            return Problem(requestToBreakfastResult.Errors);
+
+        var breakfast = requestToBreakfastResult.Value;
         ErrorOr<UpsertedBreakfast> upsertedResult = _breakfastService.UpsertBreakfast(breakfast);
 
         //If new, return 201, like we are doing in Create method.
